@@ -23,16 +23,19 @@ const RecruiterLogin = () => {
     const onSubmitHandler = async (e) => {
         e.preventDefault()
 
-        if (state == "Sign Up" && !isTextDataSubmited) {
-            return setIsTextDataSubmited(true)
+        if (!backendUrl) {
+            toast.error('Backend is not configured. Please set VITE_BACKEND_URL.')
+            return
+        }
+
+        if (state === "Sign Up" && !isTextDataSubmited) {
+            setIsTextDataSubmited(true)
+            return
         }
 
         try {
-
             if (state === "Login") {
-
                 const { data } = await axios.post(backendUrl + '/api/company/login', { email, password })
-
                 if (data.success) {
                     setCompanyData(data.company)
                     setCompanyToken(data.token)
@@ -42,9 +45,11 @@ const RecruiterLogin = () => {
                 } else {
                     toast.error(data.message)
                 }
-
             } else {
-
+                if (!image) {
+                    toast.error('Please upload a company logo before creating an account.')
+                    return
+                }
                 const formData = new FormData()
                 formData.append('name', name)
                 formData.append('password', password)
@@ -52,7 +57,6 @@ const RecruiterLogin = () => {
                 formData.append('image', image)
 
                 const { data } = await axios.post(backendUrl + '/api/company/register', formData)
-
                 if (data.success) {
                     setCompanyData(data.company)
                     setCompanyToken(data.token)
@@ -62,13 +66,10 @@ const RecruiterLogin = () => {
                 } else {
                     toast.error(data.message)
                 }
-
             }
-
         } catch (error) {
             toast.error(error.message)
         }
-
     }
 
     useEffect(() => {
