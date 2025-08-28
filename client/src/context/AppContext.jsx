@@ -2,6 +2,7 @@ import { createContext, useEffect, useState } from "react";
 import axios from "axios";
 import { toast } from "react-toastify";
 import { useAuth, useUser } from "@clerk/clerk-react";
+import { jobsData } from "../assets/assets";
 
 export const AppContext = createContext()
 
@@ -32,17 +33,16 @@ export const AppContextProvider = (props) => {
     // Function to Fetch Jobs 
     const fetchJobs = async () => {
         try {
+            const url = backendUrl ? backendUrl + '/api/jobs' : ''
+            const { data } = url ? await axios.get(url) : { data: { success: false } }
 
-            const { data } = await axios.get(backendUrl + '/api/jobs')
-
-            if (data.success) {
-                setJobs(data.jobs)
+            if (data && data.success) {
+                setJobs(Array.isArray(data.jobs) ? data.jobs : [])
             } else {
-                toast.error(data.message)
+                setJobs(jobsData)
             }
-
         } catch (error) {
-            toast.error(error.message)
+            setJobs(jobsData)
         }
     }
 
